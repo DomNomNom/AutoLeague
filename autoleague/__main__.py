@@ -47,26 +47,10 @@ def main():
     if arguments['download_bot_pack']:
         download_bot_pack(working_dir)
     elif arguments['generate_matches']:
-        generate_matches(working_dir, arguments['--num_matches'])
+        generate_matches(working_dir, int(arguments['--num_matches']))
     elif arguments['run_matches']:
         run_matches(working_dir)
 
-    # REMOVE THIS CRAP BELOW
-    return
-    if arguments['download_bot_pack']:
-        run_module(
-            Path(arguments['<python_file>']),
-            history_dir=arguments['--history_dir']
-        )
-    if arguments['history_render_static']:
-        server = Server(history_dir=Path(arguments['<history_dir>']))
-        server.render_static_website()
-    elif arguments['history_dev_server']:
-        restart_devserver_on_source_change(
-            arguments['<history_dir>'],
-            arguments['--host'],
-            arguments['--port'],
-        )
 
 if __name__ == '__main__':
   main()

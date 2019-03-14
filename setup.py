@@ -21,6 +21,8 @@ setuptools.setup(
         'rlbot',
         'rlbottraining>=0.3.0',
         'docopt',
+        'trueskill',
+        'numpy'
     ],
     python_requires='>=3.7.0',
     version=version.__version__,
