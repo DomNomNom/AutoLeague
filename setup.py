@@ -22,7 +22,9 @@ setuptools.setup(
         'rlbottraining>=0.3.0',
         'docopt',
         'trueskill',
-        'numpy'
+        'numpy',
+        'pywinauto',
+        'pypiwin32',
     ],
     python_requires='>=3.7.0',
     version=version.__version__,
@@ -45,6 +47,7 @@ setuptools.setup(
     },
     package_data={
         'autoleague': [
+            'autoleague/default_match_config.cfg',
         ]
     },
 )

@@ -5,13 +5,14 @@ The playlist has to be provided via a make_default_playlist() function.
 Usage:
     autoleague download_bot_pack  [--working_dir=<working_dir>]
     autoleague generate_matches   [--working_dir=<working_dir>] [--num_matches=N]
-    autoleague run_matches        [--working_dir=<working_dir>]
+    autoleague run_matches        [--working_dir=<working_dir>] [--replays=R]
     autoleague (-h | --help)
     autoleague --version
 
 Options:
     --working_dir=<working_dir>  Where to store inputs and outputs of the league.
     --num_matches=N              [default: 5].
+    --replays=R                  What to do with the replays of the match. Valid values are 'discard', 'save', and 'calculated_gg'. [default: calculated_gg]
     -h --help                    Show this screen.
     --version                    Show version.
 """
@@ -27,6 +28,7 @@ from autoleague.generate_matches import generate_matches
 from autoleague.paths import WorkingDir
 from autoleague.run_matches import run_matches
 from autoleague.version import __version__
+from autoleague.replays import ReplayPreference
 
 working_dir_env_var = 'AUTOLEAGUE_WORKING_DIR'
 working_dir_flag = '--working_dir'
@@ -49,8 +51,10 @@ def main():
     elif arguments['generate_matches']:
         generate_matches(working_dir, int(arguments['--num_matches']))
     elif arguments['run_matches']:
-        run_matches(working_dir)
-
+        replay_preference = ReplayPreference(arguements['--replays'])
+        run_matches(working_dir, replay_preference)
+    else:
+        raise NotImplementedError()
 
 if __name__ == '__main__':
   main()

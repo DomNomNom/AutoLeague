@@ -10,6 +10,7 @@ class WorkingDir:
     """
 
     def __init__(self, working_dir: Path):
+        working_dir = working_dir.absolute()
         self._working_dir = working_dir
         self.bots = working_dir / 'bots'
         self.bot_pack = self.bots / 'bot_pack'
@@ -26,3 +27,11 @@ class WorkingDir:
         self.match_configs_todo.mkdir(exist_ok=True)
         self.match_configs_done.mkdir(exist_ok=True)
         self.history_dir.mkdir(exist_ok=True)
+
+
+class PackageFiles:
+    """
+    An object to keep track of static paths that are part of this package
+    """
+    _package_dir = Path(__file__).absolute().parent
+    default_match_config = _package_dir / 'default_match_config.cfg'
