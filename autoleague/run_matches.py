@@ -2,9 +2,12 @@ from pathlib import Path
 from collections import defaultdict
 import json
 
+from rlbot.utils.logging_utils import get_logger
 from rlbot.matchconfig.conversions import as_match_config
 from rlbot.matchconfig.match_config import MatchConfig, PlayerConfig, Team
 from rlbottraining.training_exercise import Playlist
+from rlbottraining.exercise_runner import run_playlist
+from rlbottraining.history.exercise_result import log_result, store_result
 
 from autoleague.paths import WorkingDir
 from autoleague.replays import ReplayPreference
@@ -16,8 +19,12 @@ def run_matches(working_dir: WorkingDir, replay_preference: ReplayPreference):
     """
     match_configs = [ parse_match_config(p) for p in working_dir.match_configs_todo.iterdir() ]
     playlist = [ make_exercise(match_config, replay_preference) for match_config in match_configs]
-    for ex in playlist:
-        print(ex)
+    logger = get_logger('autoleague')
+
+    for result in run_playlist(playlist):
+        store_result(result, working_dir.history_dir)
+        log_result(result, logger)
+        # TODO: Move match_config from TODO into DONE
 
 def parse_match_config(filepath: Path) -> MatchConfig:
     with open(filepath) as f:

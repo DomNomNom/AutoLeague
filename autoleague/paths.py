@@ -16,7 +16,7 @@ class WorkingDir:
         self.bot_pack = self.bots / 'bot_pack'
         self.match_configs_todo = working_dir / 'match_configs_todo'
         self.match_configs_done = working_dir / 'match_configs_done'
-        self.history_dir = working_dir / 'match_history_dir'
+        self.history_dir = working_dir / 'history_dir'
         self.skill_pool = working_dir / 'skill_pool.json'
         self._ensure_directory_structure()
 

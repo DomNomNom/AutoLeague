@@ -16,7 +16,7 @@ from autoleague.replays import ReplayPreference
 
 
 @dataclass
-class MatchGrader(Metric):
+class MatchGrader(Grader):
 
     replay_preference: ReplayPreference
 
