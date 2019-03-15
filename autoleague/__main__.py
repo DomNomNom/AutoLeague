@@ -51,7 +51,7 @@ def main():
     elif arguments['generate_matches']:
         generate_matches(working_dir, int(arguments['--num_matches']))
     elif arguments['run_matches']:
-        replay_preference = ReplayPreference(arguements['--replays'])
+        replay_preference = ReplayPreference(arguments['--replays'])
         run_matches(working_dir, replay_preference)
     else:
         raise NotImplementedError()
