@@ -3,16 +3,17 @@ Runs the training exercise playlist in the given python file.
 The playlist has to be provided via a make_default_playlist() function.
 
 Usage:
-    autoleague download_bot_pack  [--working_dir=<working_dir>]
-    autoleague generate_matches   [--working_dir=<working_dir>] [--num_matches=N]
-    autoleague run_matches        [--working_dir=<working_dir>] [--replays=R]
+    autoleague download_bot_pack   [--working_dir=<working_dir>]
+    autoleague generate_matches    [--working_dir=<working_dir>] [--num_matches=N]
+    autoleague run_matches         [--working_dir=<working_dir>] [--replays=R]
+    autoleague history_dev_server  [--working_dir=<working_dir>]
     autoleague (-h | --help)
     autoleague --version
 
 Options:
     --working_dir=<working_dir>  Where to store inputs and outputs of the league.
     --num_matches=N              [default: 5].
-    --replays=R                  What to do with the replays of the match. Valid values are 'discard', 'save', and 'calculated_gg'. [default: calculated_gg]
+    --replays=R                  What to do with the replays of the match. Valid values are 'save', and 'calculated_gg'. [default: calculated_gg]
     -h --help                    Show this screen.
     --version                    Show version.
 """
@@ -20,6 +21,7 @@ Options:
 from pathlib import Path
 import os
 import sys
+import subprocess
 
 from docopt import docopt
 
@@ -53,6 +55,11 @@ def main():
     elif arguments['run_matches']:
         replay_preference = ReplayPreference(arguments['--replays'])
         run_matches(working_dir, replay_preference)
+    elif arguments['history_dev_server']:
+        subprocess.run(
+            f'rlbottraining history_dev_server {working_dir.history_dir} --port=8878',
+            shell=True,
+        )
     else:
         raise NotImplementedError()
 

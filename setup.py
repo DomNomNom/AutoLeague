@@ -25,6 +25,7 @@ setuptools.setup(
         'numpy',
         'pywinauto',
         'pypiwin32',
+        'requests',
     ],
     python_requires='>=3.7.0',
     version=version.__version__,

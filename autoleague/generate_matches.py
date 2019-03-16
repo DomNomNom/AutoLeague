@@ -12,6 +12,7 @@ from rlbot.matchconfig.match_config import MatchConfig, PlayerConfig, Team
 from autoleague.paths import WorkingDir, PackageFiles
 from autoleague.bot_id import BotID, make_bot_id
 from autoleague.skill_pool import load_skill_pool, save_skill_pool, match_making
+from autoleague.match_naming import get_match_name
 
 
 def generate_matches(working_dir: WorkingDir, num_matches: int):
@@ -29,17 +30,15 @@ def generate_matches(working_dir: WorkingDir, num_matches: int):
             skill_pool.ratings[bot_id] = skill_pool.env.create_rating()
 
     bot_id_pairs = match_making(skill_pool, num_matches)
-    write_match_configs(working_dir, bot_id_pairs)
+    match_configs = [ make_match_config(working_dir, pair) for pair in bot_id_pairs ]
+    for match_config in match_configs:
+        print(f'Generated match: {get_match_name(match_config)}')
+        with open(working_dir.match_configs_todo / f'{int(time.time()*62831853)}.json', 'w') as f: # lol
+            json.dump(match_config, f, cls=ConfigJsonEncoder)
     num_todos = len(list(working_dir.match_configs_todo.iterdir()))
     more_info = '' if num_todos == len(bot_id_pairs) else f'(A total of {num_todos} matches waiting to be played)'
     print(f'Added {len(bot_id_pairs)} match configs. {more_info}')
 
-def write_match_configs(working_dir: WorkingDir, bot_id_pairs: List[Tuple[BotID, BotID]]):
-    for bot_id_pair in bot_id_pairs:
-        # TODO: Allow people to specify the config
-        match_config = make_match_config(working_dir, bot_id_pair)
-        with open(working_dir.match_configs_todo / f'{int(time.time()*62831853)}.json', 'w') as f: # lol
-            json.dump(match_config, f, cls=ConfigJsonEncoder)
 
 def make_match_config(working_dir: WorkingDir, bot_id_pair: Tuple[BotID, BotID]) -> MatchConfig:
     match_config = read_match_config_from_file(PackageFiles.default_match_config)

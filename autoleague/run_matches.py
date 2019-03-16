@@ -1,6 +1,6 @@
 from pathlib import Path
-from collections import defaultdict
 import json
+import shutil
 
 from rlbot.utils.logging_utils import get_logger
 from rlbot.matchconfig.conversions import as_match_config
@@ -9,22 +9,43 @@ from rlbottraining.training_exercise import Playlist
 from rlbottraining.exercise_runner import run_playlist
 from rlbottraining.history.exercise_result import log_result, store_result
 
-from autoleague.paths import WorkingDir
-from autoleague.replays import ReplayPreference
 from autoleague.match_exercise import MatchExercise, MatchGrader
+from autoleague.match_naming import get_match_name
+from autoleague.paths import WorkingDir
+from autoleague.replays import ReplayPreference, ReplayMonitor
+
+logger = get_logger('autoleague')
 
 def run_matches(working_dir: WorkingDir, replay_preference: ReplayPreference):
     """
     Runs all matches as specified by working_dir/match_configs_todo
     """
-    match_configs = [ parse_match_config(p) for p in working_dir.match_configs_todo.iterdir() ]
-    playlist = [ make_exercise(match_config, replay_preference) for match_config in match_configs]
-    logger = get_logger('autoleague')
+    match_paths = list(working_dir.match_configs_todo.iterdir())
+    if not len(match_paths):
+        logger.warning(f'No matches found. Add some using `autoleague generate_matches`')
+        return
+    logger.info(f'Going to run {len(match_paths)} matches')
+    match_configs = [ parse_match_config(p) for p in match_paths ]
+    playlist = [
+        MatchExercise(
+            name=get_match_name(match_config),
+            match_config_file_name=match_path.name,
+            match_config=match_config,
+            grader=MatchGrader(
+                replay_monitor=ReplayMonitor(replay_preference=replay_preference),
+            )
+        )
+        for match_config, match_path in zip(match_configs, match_paths)
+    ]
 
     for result in run_playlist(playlist):
         store_result(result, working_dir.history_dir)
+        match_config_file_name = result.exercise.match_config_file_name
+        shutil.move(
+            working_dir.match_configs_todo / match_config_file_name,
+            working_dir.match_configs_done / match_config_file_name,
+        )
         log_result(result, logger)
-        # TODO: Move match_config from TODO into DONE
 
 def parse_match_config(filepath: Path) -> MatchConfig:
     with open(filepath) as f:
@@ -34,15 +55,3 @@ def parse_match_config(filepath: Path) -> MatchConfig:
             print("Error while parsing:", filepath)
             raise e
 
-
-def make_exercise(match_config: MatchConfig, replay_preference: ReplayPreference) -> MatchExercise:
-    team_to_names = defaultdict(list)
-    for player in match_config.player_configs:
-        team_to_names[player.team].append(player.name)
-    return MatchExercise(
-        name=f'{", ".join(team_to_names[0])} vs {", ".join(team_to_names[1])}',
-        match_config=match_config,
-        grader=MatchGrader(
-            replay_preference=replay_preference,
-        )
-    )
