@@ -4,6 +4,8 @@ This module contains file system paths that are used by autoleague.
 
 from pathlib import Path
 
+from rlbottraining.paths import HistoryPaths
+
 class WorkingDir:
     """
     An object to make is convenient and safe to access file system paths.
@@ -35,3 +37,7 @@ class PackageFiles:
     """
     _package_dir = Path(__file__).absolute().parent
     default_match_config = _package_dir / 'default_match_config.cfg'
+
+    _website_dir = _package_dir / 'website'
+    additional_website_code = _website_dir / 'additional_website_code'
+    additional_website_static = _website_dir / 'static'

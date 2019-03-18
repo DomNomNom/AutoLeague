@@ -49,6 +49,7 @@ setuptools.setup(
     package_data={
         'autoleague': [
             'autoleague/default_match_config.cfg',
+            'autoleague/website/additional_website_code/*',
         ]
     },
 )

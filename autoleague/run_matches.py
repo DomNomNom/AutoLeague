@@ -8,10 +8,11 @@ from rlbot.matchconfig.match_config import MatchConfig, PlayerConfig, Team
 from rlbottraining.training_exercise import Playlist
 from rlbottraining.exercise_runner import run_playlist
 from rlbottraining.history.exercise_result import log_result, store_result
+from rlbottraining.history.website.server import set_additional_website_code
 
 from autoleague.match_exercise import MatchExercise, MatchGrader
 from autoleague.match_naming import get_match_name
-from autoleague.paths import WorkingDir
+from autoleague.paths import WorkingDir, PackageFiles
 from autoleague.replays import ReplayPreference, ReplayMonitor
 
 logger = get_logger('autoleague')
@@ -37,6 +38,8 @@ def run_matches(working_dir: WorkingDir, replay_preference: ReplayPreference):
         )
         for match_config, match_path in zip(match_configs, match_paths)
     ]
+
+    set_additional_website_code(PackageFiles.additional_website_code, working_dir.history_dir)
 
     for result in run_playlist(playlist):
         store_result(result, working_dir.history_dir)

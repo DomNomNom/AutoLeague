@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="css/main.css" />
+  <title>Exercise Run</title>
+</head>
+<body>
+
+<div id="loading">Loading...</div>
+<table id="match-list"></table>
+
+<link rel="stylesheet" type="text/css" href="css/exercise_table.css" />
+
+<script type="text/javascript" src="thirdparty/jquery.js"></script>
+<script type="text/javascript" src="thirdparty/datatables/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" type="text/css" href="thirdparty/datatables/css/jquery.dataTables.css" />
+<link rel="preload" crossorigin="anonymous" href="data/matches.json" as="fetch">
+<script type="module">
+
+
+import {formatDate, formatClassName, escapeText} from './result_utils.js'
+
+function processTeams(game_tick_packet) {
+  const teams = game_tick_packet.teams.map(team => {
+    team = Object.assign({}, team); // shallow copy
+    team.members_description = game_tick_packet.game_cars
+      .filter(car => car.team == team.team_index)
+      .map(car => car.name)
+      .filter(name => name)
+      .join(', ')
+    return team;
+  });
+  teams.sort((a,b) => b.score - a.score);  // higher score first
+  return teams;
+}
+
+function isTie(processed_teams) {
+  return processed_teams.every(team => team.score == processed_teams[0].score);
+}
+
+fetch(new Request('data/matches.json'))
+.then(response => response.json())
+.then(rows => {
+
+  // Data preprocessing
+  for (const row of rows) {
+    row.processed_teams = processTeams(row.exercise.grader.last_game_tick_packet);
+  }
+
+  $('#loading').hide();
+  const columns = [
+    {
+      title: 'Run',
+      render(_,__, row) {
+        const run_id = row.run_id;
+        return `
+          <a href="result.html#${encodeURIComponent(run_id)}" alt="${escapeText(run_id)}">
+            ${escapeText(formatDate(new Date(row.create_time.iso8601)))}
+          </a>
+        `;
+      }
+    },
+    {
+      title: 'Winner',
+      data: 'processed_teams',
+      render(processed_teams) {
+        if (isTie(processed_teams)) return '';
+        return escapeText(processed_teams[0].members_description);
+      },
+    },
+    {
+      title: 'Score',
+      data: 'processed_teams',
+      render(processed_teams) {
+        return escapeText(processed_teams.map(team => team.score).join(' - '));
+      },
+    },
+    {
+      title: 'Loser',
+      data: 'processed_teams',
+      render(processed_teams) {
+        if (isTie(processed_teams)) {
+          return ' <b>TIE:</b> ' + processed_teams.map(team => team.members_description).join(', ');
+        }
+        return escapeText(processed_teams[1].members_description);
+      },
+    },
+    {
+      title: 'Replay',
+      data: 'exercise.grader.replay_monitor.replay_id',
+      render(replay_id) {
+        return `
+          <a class="hex" href="http://calculated.gg/replays/${encodeURIComponent(replay_id)}">
+          ${escapeText(replay_id)}
+          </a>
+          `
+      }
+    }
+  ];
+
+
+  console.log(rows)
+  window.dataTable = $('#match-list').DataTable({
+      autoWidth: false,
+      paging: false,
+      order: [[ 1, "desc" ]],
+      filter: true,
+      info: false,
+      columns,
+      createdRow: function(row, data, dataIndex) {
+        $(row).addClass(redIfFail(data['grade']));
+      }
+  });
+
+  window.dataTable.clear().rows.add(rows).draw();
+});
+
+function redIfFail(grade_obj) {
+  if (grade_obj['__isinstance_Fail__']) {
+    return 'grade-fail';
+  }
+  return '';
+}
+
+</script>
+</body>
+</html>
