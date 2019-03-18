@@ -33,7 +33,9 @@ def generate_matches(working_dir: WorkingDir, num_matches: int):
     match_configs = [ make_match_config(working_dir, pair) for pair in bot_id_pairs ]
     for match_config in match_configs:
         print(f'Generated match: {get_match_name(match_config)}')
-        with open(working_dir.match_configs_todo / f'{int(time.time()*62831853)}.json', 'w') as f: # lol
+        match_config_path = working_dir.match_configs_todo / f'{int(time.time()*6283185399)}.json' # lol
+        assert not match_config_path.exists()
+        with open(match_config_path, 'w') as f:
             json.dump(match_config, f, cls=ConfigJsonEncoder)
     num_todos = len(list(working_dir.match_configs_todo.iterdir()))
     more_info = '' if num_todos == len(bot_id_pairs) else f'(A total of {num_todos} matches waiting to be played)'
