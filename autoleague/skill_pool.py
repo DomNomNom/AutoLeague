@@ -43,7 +43,10 @@ def match_making(skill_pool: SkillPool, num_matches: int) -> List[Tuple[BotID, B
 
     weights = np.array(weights)
     weights /= weights.sum()
-    indecies = np.random.choice(np.arange(len(population)), p=weights, size=num_matches, replace=False)
+    try:
+        indecies = np.random.choice(np.arange(len(population)), p=weights, size=num_matches, replace=False)
+    except ValueError:
+        raise ValueError(f'Trying to generate more matches that possible matchups. Use --num_matches={len(population)} to generate every possible match.')
     return [ population[i] for i in sorted(indecies) ]
 
 
