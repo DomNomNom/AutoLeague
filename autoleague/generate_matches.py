@@ -31,9 +31,10 @@ def generate_matches(working_dir: WorkingDir, num_matches: int):
 
     bot_id_pairs = match_making(skill_pool, num_matches)
     match_configs = [ make_match_config(working_dir, pair) for pair in bot_id_pairs ]
-    for match_config in match_configs:
+    start_number = int(time.time()*6283185399)  # lol
+    for i, match_config in enumerate(match_configs):
         print(f'Generated match: {get_match_name(match_config)}')
-        match_config_path = working_dir.match_configs_todo / f'{int(time.time()*6283185399)}.json' # lol
+        match_config_path = working_dir.match_configs_todo / f'{start_number}_{i}.json'
         assert not match_config_path.exists()
         with open(match_config_path, 'w') as f:
             json.dump(match_config, f, cls=ConfigJsonEncoder)
