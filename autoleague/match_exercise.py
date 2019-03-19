@@ -36,7 +36,7 @@ class MatchGrader(Grader):
                 self.replay_monitor.stop_monitoring()
                 return Pass()
             seconds_since_game_end = game_info.seconds_elapsed - self.last_match_time
-            if seconds_since_game_end > 15:
+            if seconds_since_game_end > 30:
                 self.replay_monitor.stop_monitoring()
                 return FailDueToNoReplay()
         else:
