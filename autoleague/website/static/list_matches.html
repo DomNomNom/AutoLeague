@@ -12,22 +12,34 @@
 
 <link rel="stylesheet" type="text/css" href="css/exercise_table.css" />
 
+<link rel="preload" crossorigin="anonymous" href="data/matches.json" as="fetch">
 <script type="text/javascript" src="thirdparty/jquery.js"></script>
 <script type="text/javascript" src="thirdparty/datatables/js/jquery.dataTables.js"></script>
 <link rel="stylesheet" type="text/css" href="thirdparty/datatables/css/jquery.dataTables.css" />
-<link rel="preload" crossorigin="anonymous" href="data/matches.json" as="fetch">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
 <script type="module">
 
 
 import {formatDate, formatClassName, escapeText} from './result_utils.js'
 
+function formatBotName(bot_name) {
+  if (!('CryptoJS' in window)) {
+    return escapeText(bot_name)
+  }
+
+  // JS implementation of
+  // https://github.com/SaltieRL/carball/blob/master/carball/json_parser/bots.py#L75
+  const name_hash = CryptoJS.MD5(bot_name.toLowerCase()) + '';
+  const bot_url = `https://calculated.gg/players/b${name_hash.substr(0,9)}b/overview`;
+  return `<a class="bot-link" href="${bot_url}">${escapeText(bot_name)}</a>`;
+}
+
 function processTeams(game_tick_packet) {
   const teams = game_tick_packet.teams.map(team => {
     team = Object.assign({}, team); // shallow copy
-    team.members_description = game_tick_packet.game_cars
-      .filter(car => car.team == team.team_index)
-      .map(car => car.name)
-      .filter(name => name)
+    team.members_html = game_tick_packet.game_cars
+      .filter(car => car.team == team.team_index && car.name)
+      .map(car => formatBotName(car.name))
       .join(', ')
     return team;
   });
@@ -66,7 +78,7 @@ fetch(new Request('data/matches.json'))
       data: 'processed_teams',
       render(processed_teams) {
         if (isTie(processed_teams)) return '';
-        return escapeText(processed_teams[0].members_description);
+        return processed_teams[0].members_html;
       },
     },
     {
@@ -81,9 +93,9 @@ fetch(new Request('data/matches.json'))
       data: 'processed_teams',
       render(processed_teams) {
         if (isTie(processed_teams)) {
-          return ' <b>TIE:</b> ' + processed_teams.map(team => team.members_description).join(', ');
+          return ' <b>TIE:</b> ' + processed_teams.map(team => team.members_html).join(', ');
         }
-        return escapeText(processed_teams[1].members_description);
+        return processed_teams[1].members_html;
       },
     },
     {
@@ -99,12 +111,10 @@ fetch(new Request('data/matches.json'))
     }
   ];
 
-
-  console.log(rows)
   window.dataTable = $('#match-list').DataTable({
       autoWidth: false,
       paging: false,
-      order: [[ 1, "desc" ]],
+      order: [[ 0, "desc" ]],
       filter: true,
       info: false,
       columns,

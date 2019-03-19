@@ -6,7 +6,7 @@ Usage:
     autoleague download_bot_pack   [--working_dir=<working_dir>]
     autoleague generate_matches    [--working_dir=<working_dir>] [--num_matches=N]
     autoleague run_matches         [--working_dir=<working_dir>] [--replays=R]
-    autoleague history_dev_server  [--working_dir=<working_dir>]
+    autoleague history_dev_server  [--working_dir=<working_dir>] [--host=<host>] [--port=<port>]
     autoleague (-h | --help)
     autoleague --version
 
@@ -14,6 +14,8 @@ Options:
     --working_dir=<working_dir>  Where to store inputs and outputs of the league.
     --num_matches=N              [default: 5].
     --replays=R                  What to do with the replays of the match. Valid values are 'save', and 'calculated_gg'. [default: calculated_gg]
+    --host=<host>            [default: localhost].
+    --port=<port>            [default: 8878]
     -h --help                    Show this screen.
     --version                    Show version.
 """
@@ -57,7 +59,7 @@ def main():
         run_matches(working_dir, replay_preference)
     elif arguments['history_dev_server']:
         subprocess.run(
-            f'rlbottraining history_dev_server {working_dir.history_dir} --port=8878',
+            f'rlbottraining history_dev_server {working_dir.history_dir} --host="{arguments["--host"]}" --port={int(arguments["--port"])}',
             shell=True,
         )
     else:
