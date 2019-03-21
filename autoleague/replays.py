@@ -14,12 +14,12 @@ from rlbottraining.history.metric import Metric
 
 class ReplayPreference(Enum):
     SAVE = 'save'  # save to the default replays directory
-    CALCULATED_GG = 'calculated_gg'  # save locally and upload to http://calculated.gg/
+    CALCULATED_GG = 'calculated_gg'  # save locally and upload to https://calculated.gg/
 
 
 def upload_to_calculated_gg(replay_path: Path):
     with open(replay_path, 'rb') as f:
-        response = requests.post('http://calculated.gg/api/upload', files={'replays': f})
+        response = requests.post('https://calculated.gg/api/upload', files={'replays': f})
         print(f'upload response to {replay_path.name}: {response}')
 
 def parse_replay_id(replay_path: Path) -> str:
