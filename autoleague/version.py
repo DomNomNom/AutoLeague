@@ -1,8 +1,12 @@
 # https://stackoverflow.com/questions/458550/standard-way-to-embed-version-into-python-package
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 release_notes = {
+    '0.1.0': '''
+        - Visualize match results by adding an rlbottraining website extension - DomNomNom
+    ''',
+
     '0.1.0': '''
         - Run full matches using RLBotTraining - DomNomNom
     ''',
