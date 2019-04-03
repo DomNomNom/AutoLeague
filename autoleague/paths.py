@@ -6,7 +6,7 @@ from pathlib import Path
 
 class WorkingDir:
     """
-    An object to make is convenient and safe to access file system paths.
+    An object to make it convenient and safe to access file system paths within the working directory.
     """
 
     def __init__(self, working_dir: Path):
